@@ -13,18 +13,20 @@ export const signup = async (req, res) => {
   if (await User.findOne({ email })) {
     throw new APIError("User already exists", httpStatus.BAD_REQUEST);
   }
+
   const image = await uploadImage(avatar);
 
   const user = await User.create({
     name,
     email,
     password,
+    role: "User",
     avatar: {
       public_id: image.public_id,
       url: image.secure_url,
     },
   });
-  const tokens = await tokenService.generateAuthTokens(user);
+  const tokens = await tokenService.generateAuthTokens(user, 'User');
   return res.json({
     success: true,
     data: tokens,
@@ -151,7 +153,7 @@ export const refreshTokens = async (req, res) => {
     config.TOKEN_TYPES.REFRESH
   );
 
-  const user = await User.findById({_id: refreshTokenDoc.user});
+  const user = await User.findById({ _id: refreshTokenDoc.user });
 
   if (!user) {
     throw new Error();

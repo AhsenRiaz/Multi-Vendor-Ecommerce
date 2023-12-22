@@ -14,14 +14,30 @@ export const getUser = async (req, res) => {
   });
 };
 
+export const getUserById = async (req, res) => {
+  const userId = req.body.id;
+  let user = await User.findById({ _id: userId });
+  if (!user) {
+    throw new APIError("User not exist", httpStatus.BAD_REQUEST);
+  }
+
+  return res.json({
+    success: true,
+    data: user,
+  });
+};
+
 export const updateUser = async (req, res) => {
-  const { email } = req.body;
+  const { email, phoneNo } = req.body;
   const user = await User.findById(req.user.id);
   if (!user) {
     throw new APIError("User not exist", httpStatus.BAD_REQUEST);
   }
 
   if (await User.findOne({ email, _id: { $ne: req.user.id } })) {
+    throw new APIError("Email already exist", httpStatus.BAD_REQUEST);
+  }
+  if (await User.findOne({ phoneNo, _id: { $ne: req.user.id } })) {
     throw new APIError("Email already exist", httpStatus.BAD_REQUEST);
   }
   Object.assign(user, req.body);
@@ -64,7 +80,7 @@ export const updateUserPassword = async (req, res) => {
     throw new APIError("Password incorrect", httpStatus.UNAUTHORIZED);
   }
 
-  user.password = req.password;
+  user.password = req.body.newPassword;
   await user.save();
 
   return res.json({
@@ -73,19 +89,7 @@ export const updateUserPassword = async (req, res) => {
   });
 };
 
-export const getUserById = async (req, res) => {
-  const userId = req.user.id;
-  let user = await User.findById({ _id: userId });
-  if (!user) {
-    throw new APIError("User not exist", httpStatus.BAD_REQUEST);
-  }
-
-  return res.json({
-    success: true,
-    data: user,
-  });
-};
-
+// admin access only
 export const getAllUsers = async (req, res) => {
   const users = await User.find().sort({
     createdAt: -1,

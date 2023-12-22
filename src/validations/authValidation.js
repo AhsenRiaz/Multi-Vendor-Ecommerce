@@ -5,7 +5,7 @@ export const signup = {
     name: Joi.string().trim().min(2).max(20).required(),
     email: Joi.string().email().required(),
     password: Joi.string().min(6).max(666).required(),
-    avatar: Joi.string(),
+    avatar: Joi.string().required(),
   }),
 };
 

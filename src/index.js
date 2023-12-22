@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import config from "./config/config.js";
 import logger from "./config/logger.js";
 import app from "./app.js";
+import initialData from "./config/initialData.js";
 
 let server;
 
@@ -35,6 +36,7 @@ const connect = async () => {
     await mongoose.connect(config.DATABASE_URI, config.DATABASE_OPTIONS);
     logger.info("🚀 Connected to MongoDB end!");
     logger.info("🚀 Initial MongoDB!");
+    await initialData();
     server = app.listen(config.PORT, config.HOST, () => {
       logger.info(`🚀 Host: http://localhost:${config.PORT}`);
     });

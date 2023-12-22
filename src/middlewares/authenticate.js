@@ -1,9 +1,11 @@
 import passport from "passport";
 import httpStatus from "http-status";
 import APIError from "../utils/apiError.js";
+import User from "../models/user.js";
 
-const verifyCallBack = (req, resolve, reject) => {
-  async (err, user, info) => {
+const verifyCallback =
+  (req, resolve, reject, requiredRole) => async (err, user, info) => {
+    console.log("user", user);
     if (err || info || !user) {
       return reject(
         new APIError(
@@ -13,17 +15,22 @@ const verifyCallBack = (req, resolve, reject) => {
       );
     }
     req.user = user;
+    if (requiredRole && !(requiredRole === user.role)) {
+      return reject(
+        new APIError("Resource access denied", httpStatus.FORBIDDEN)
+      );
+    }
     return resolve();
   };
-};
 
 // check which function gets invoked
-const authenticate = () => async (req, res, next) => {
+const authenticate = (requiredRole) => async (req, res, next) => {
+  console.log("requiredRole", requiredRole);
   return new Promise((resolve, reject) => {
     passport.authenticate(
       "jwt",
       { session: false },
-      verifyCallBack(req, resolve, reject)
+      verifyCallback(req, resolve, reject, requiredRole)
     )(req, res, next);
   })
     .then(() => next())

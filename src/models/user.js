@@ -43,7 +43,6 @@ const userSchema = new mongoose.Schema({
   ],
   role: {
     type: String,
-    default: "User",
   },
   avatar: {
     public_id: {

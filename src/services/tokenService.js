@@ -24,7 +24,7 @@ export const verifyToken = async (token, type) => {
   return tokenDoc;
 };
 
-export const generateAuthTokens = async (user) => {
+export const generateAuthTokens = async (user, type) => {
   const accessTokenExpires = moment().add(
     config.JWT_ACCESS_TOKEN_EXPIRATION_MINUTES,
     "minutes"
@@ -36,7 +36,8 @@ export const generateAuthTokens = async (user) => {
     config.JWT_SECRET,
     {
       algorithm: "HS256",
-    }
+    },
+    type
   );
 
   const refreshTokenExpires = moment().add(
